@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
 - external-secrets.yaml
 - cert-manager.yaml
+- traefik.yaml
 #- csi-driver-nfs.yaml
 #- flux-webhook.yaml
 #- reloader.yaml

@@ -1,0 +1,32 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: traefik
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  timeout: 5m
+  path: ./traefik
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: cert-manager
+  healthChecks:
+  - apiVersion: traefik.io/v1alpha1
+    kind: TLSStore
+    name: default
+    namespace: traefik
+  - apiVersion: traefik.io/v1alpha1
+    kind: IngressRoute
+    name: dashboard
+    namespace: traefik
+  postBuild:
+    substitute:
+      var_substitution_enabled: "true"
+    substituteFrom:
+      - kind: Secret
+        name: clusterconfig
+        optional: true
