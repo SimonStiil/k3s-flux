@@ -4,8 +4,8 @@ resources:
 - external-secrets.yaml
 - cert-manager.yaml
 - traefik.yaml
+- flux-webhook.yaml
 #- csi-driver-nfs.yaml
-#- flux-webhook.yaml
 #- reloader.yaml
 #- rke-patches.yaml
 #- cilium-bgp.yaml
