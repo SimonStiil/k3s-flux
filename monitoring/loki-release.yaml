@@ -1,0 +1,134 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: loki
+  namespace: flux-system
+spec:
+  chart:
+    spec:
+      chart: loki
+      version: 6.38.0
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+  install:
+    crds: Create
+    createNamespace: true
+#    remediation:
+#      retries: 3
+  upgrade:
+    crds: CreateReplace
+#    remediation:
+#      retries: 3
+  interval: 10m0s
+  timeout: 5m
+  targetNamespace: monitoring
+  values:
+    test:
+      enabled: false
+    lokiCanary:
+      enabled: false
+    gateway:
+      enabled: false
+      
+    singleBinary:
+      replicas: 1
+      persistence:
+        size: 20Gi
+        storageClass: nfs-csi
+        enabled: true
+      resources:
+        limits:
+          cpu: 3
+          memory: 4Gi
+        requests:
+          cpu: 2
+          memory: 2Gi
+      extraEnv:
+        # Keep a little bit lower than memory limits
+        - name: GOMEMLIMIT
+          value: 3750MiB
+    loki:
+      auth_enabled: false
+      commonConfig:
+        replication_factor: 1
+      storage:
+        type: 'filesystem'
+      schemaConfig:
+        configs:
+        - from: "2024-01-01"
+          store: tsdb
+          index:
+            prefix: loki_index_
+            period: 24h
+          object_store: filesystem # we're storing on filesystem so there's no real persistence here.
+          schema: v13
+      readinessProbe:
+        httpGet:
+          port: 3100
+      querier:
+        multi_tenant_queries_enabled: true
+        max_concurrent: 2
+      ingester:
+        chunk_encoding: snappy
+      tracing:
+        enabled: true
+      ruler:
+        alertmanager_url: http://prometheus-alertmanager:9093
+      compactor:
+        working_directory: /var/loki/retention
+        compaction_interval: 10m
+        retention_enabled: true
+        retention_delete_delay: 2h
+        retention_delete_worker_count: 150
+        delete_request_store: filesystem
+      limits_config:
+        retention_period: 168h
+        ingestion_rate_mb: 100
+        ingestion_burst_size_mb: 200
+      revisionHistoryLimit: 2
+    deploymentMode: SingleBinary
+    chunksCache:
+      # default is 500MB, with limited memory keep this smaller
+      writebackSizeLimit: 10MB
+      allocatedMemory: 750
+    resultsCache:
+      allocatedMemory: 100
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      hosts:
+        - loki.k3s.${homedomain:=undefined}
+      annotations:
+        cert-manager.io/cluster-issuer: stiil-issuer
+      tls:
+      - secretName: loki-cert
+        hosts:
+        - loki.k3s.${homedomain:=undefined}
+    backend:
+      replicas: 0        
+    read:
+      replicas: 0
+    write:
+      replicas: 0
+    compactor:
+      replicas: 0
+    ingester:
+      replicas: 0
+    querier:
+      replicas: 0
+    queryFrontend:
+      replicas: 0
+    queryScheduler:
+      replicas: 0
+    distributor:
+      replicas: 0
+    indexGateway:
+      replicas: 0
+    bloomCompactor:
+      replicas: 0
+    bloomGateway:
+      replicas: 0
+        

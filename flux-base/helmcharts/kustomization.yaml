@@ -4,3 +4,5 @@ resources:
 - cert-manager-release.yaml
 - csi-driver-nfs-release.yaml
 - external-secrets-release.yaml
+- kube-prometheus-stack-values-configmap.yaml
+- kube-prometheus-stack-release.yaml
