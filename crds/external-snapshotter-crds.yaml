@@ -1,0 +1,29 @@
+## https://github.com/external-secrets/external-secrets/tree/main/config/crds/bases
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: csi-external-snapshotter
+  namespace: flux-system
+spec:
+  interval: 30m
+  timeout: 2m
+  url: https://github.com/kubernetes-csi/external-snapshotter.git
+  ref:
+    tag: v8.3.0 
+  ignore: |
+    # exclude all
+    /*
+    # path to crds
+    !/client/config/crd
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crds-external-snapshotter
+  namespace: flux-system
+spec:
+  interval: 30m
+  prune: false
+  sourceRef:
+    kind: GitRepository
+    name: csi-external-snapshotter
