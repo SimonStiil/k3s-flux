@@ -12,6 +12,7 @@ resources:
 - jenkins.yaml
 - monitoring.yaml
 - rocm.yaml
+- ollama.yaml
 
 #- reloader.yaml
 #- rke-patches.yaml

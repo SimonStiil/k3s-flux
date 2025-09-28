@@ -13,7 +13,7 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: flux-system
+    - name: base
     - name: external-secrets
   healthChecks:
   - apiVersion: apps/v1
