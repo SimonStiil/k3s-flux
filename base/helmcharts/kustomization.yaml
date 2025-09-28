@@ -7,3 +7,4 @@ resources:
 - external-secrets-release.yaml
 - kube-prometheus-stack-values-configmap.yaml
 - kube-prometheus-stack-release.yaml
+# - rocm-gpu-opperator.yaml
