@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": ["dependencies"],
+  "assignees": ["SimonStiil"],
+  "reviewers": ["SimonStiil"],
+  "kubernetes": {
+    "fileMatch": [
+      "\\.yaml$"
+    ]
+  },
+  "flux": {
+    "fileMatch": [
+      "\\.yaml$"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": false
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "\\.yaml$"
+      ],
+      "matchStrings": [
+        "- https://raw.githubusercontent.com/(?<depName>[\\w\\-\\_]+/[\\w\\-\\_]+?)/(?<currentValue>[\\w\\-\\_\\,\\.]+?)/"
+      ],
+      "datasourceTemplate": "github-releases"
+    }
+  ],
+  "packageRules": [
+    {
+      "groupName": "Fluxcd",
+      "groupSlug": "flux-cd",
+      "matchPackageNames": [
+        "ghcr.io/fluxcd{/,}**"
+      ]
+    },
+    {
+      "groupName": "all dependencies",
+      "groupSlug": "all",
+      "matchPackageNames": [
+        "!ghcr.io/fluxcd{/,}**",
+        "*"
+      ]
+    }
+  ],
+  "separateMajorMinor": false
+}
