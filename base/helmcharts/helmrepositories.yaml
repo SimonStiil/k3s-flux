@@ -80,7 +80,7 @@ spec:
   interval: 1h
   url: https://traefik.github.io/charts
 --- 
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: rocm-gpu-operator
@@ -89,7 +89,7 @@ spec:
   interval: 1h
   url: https://rocm.github.io/gpu-operator
 --- 
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: otwld
