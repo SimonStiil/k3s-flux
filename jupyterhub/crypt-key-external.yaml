@@ -1,0 +1,20 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: jupyterhub-crypt-key
+  namespace: jupyterhub
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: webhook-backend
+    kind: ClusterSecretStore
+  target:
+    name: jupyterhub-crypt-key
+    template:
+      data:
+        crypt-key: "{{ .key | toString }}"
+  data:
+  - secretKey: key
+    remoteRef:
+      key: jupyterhub-crypt-key
+      property: home

@@ -13,6 +13,8 @@ resources:
 - monitoring.yaml
 - rocm.yaml
 - ollama.yaml
+- flux-system-additions.yaml
+- jupyterhub.yaml
 
 #- reloader.yaml
 #- rke-patches.yaml
