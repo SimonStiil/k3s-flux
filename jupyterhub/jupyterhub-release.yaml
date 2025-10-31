@@ -1,0 +1,131 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jupyterhub
+  namespace: flux-system
+spec:
+  chart:
+    spec:
+      chart: jupyterhub
+      version: "4.3.1"
+      sourceRef:
+        kind: HelmRepository
+        name: jupyterhub
+        namespace: flux-system
+  install:
+    crds: Create
+  interval: 30m0s
+  timeout: 15m
+  targetNamespace: jupyterhub
+  upgrade:
+    crds: CreateReplace
+  values:
+    hub:
+      config:
+        JupyterHub:
+          authenticator_class: ldapauthenticator.LDAPAuthenticator
+        LDAPAuthenticator:
+          server_address: ldaps://diskstation.${topleveldomain:=undefined}
+          server_port: 636
+          use_ssl: true
+          lookup_dn: true
+          lookup_dn_search_user: "uid=svc-jupyterhub,cn=users,${ldapclusterdomain:=undefined}"
+          lookup_dn_search_filter: "({login_attr}={login})"
+          lookup_dn_search_password: "${ldapbindpassword:=undefined}"
+          lookup_dn_user_dn_attribute: "uid"
+          user_search_base: "cn=users,${ldapclusterdomain:=undefined}"
+          user_attribute: uid
+          auth_state_attributes: 
+            - "uid"
+            - "cn"
+            - "mail"
+            - "title"
+          allowed_groups: 
+          - "cn=developer,cn=groups,${ldapclusterdomain:=undefined}"
+          group_search_base: "cn=groups,${ldapclusterdomain:=undefined}"
+          group_member_attribute: "member"
+          group_objectclass: "posixGroup"
+      db:
+        pvc:
+          storageClassName: local-path
+    proxy:
+      service:
+        type: ClusterIP
+    singleuser:
+      storage:
+        dynamic:
+          storageClass: local-path
+      profileList:
+        - display_name: "DevOps Tools"
+          description: "Kubernetes tools (kubectl, helm, kustomize) and Ansible"
+          default: true
+          kubespawner_override:
+            image: jupyter/base-notebook:latest
+            cpu_limit: 4
+            cpu_guarantee: 0.5
+            mem_limit: "8G"
+            mem_guarantee: "1G"
+            lifecycle_hooks:
+              postStart:
+                exec:
+                  command:
+                    - /bin/bash
+                    - -c
+                    - |
+                      # Install kubectl
+                      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                      chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+                      
+                      # Install helm
+                      curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+                      
+                      # Install kustomize
+                      curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+                      sudo mv kustomize /usr/local/bin/
+                      
+                      # Install ansible
+                      pip install ansible
+            extra_pod_config:
+              serviceAccountName: jupyterhub-devops
+        - display_name: "PyTorch ROCm"
+          description: "PyTorch with AMD GPU support"
+          kubespawner_override:
+            image: rocm/pytorch:rocm7.0_ubuntu24.04_py3.12_pytorch_release_2.7.1
+            cpu_limit: 16
+            cpu_guarantee: 1
+            mem_limit: "24G"
+            mem_guarantee: "2G"
+            extra_resource_limits:
+              amd.com/gpu: "1"
+        - display_name: "TensorFlow ROCm"
+          description: "TensorFlow with AMD GPU support"
+          kubespawner_override:
+            image: rocm/tensorflow:rocm7.0-py3.12-tf2.19-dev
+            cpu_limit: 16
+            cpu_guarantee: 1
+            mem_limit: "24G"
+            mem_guarantee: "2G"
+            extra_resource_limits:
+              amd.com/gpu: "1"
+        - display_name: "JAX ROCm"
+          description: "JAX with AMD GPU support"
+          kubespawner_override:
+            image: rocm/jax:rocm7.0-jax0.6.0-py3.12
+            cpu_limit: 16
+            cpu_guarantee: 1
+            mem_limit: "24G"
+            mem_guarantee: "2G"
+            extra_resource_limits:
+              amd.com/gpu: "1"
+    scheduling:
+      userScheduler:
+        replicas: 1
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      hosts:
+        - jupyterhub.${clusterdomain:=undefined}
+      annotations: 
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+        traefik.ingress.kubernetes.io/router.tls: "true"
