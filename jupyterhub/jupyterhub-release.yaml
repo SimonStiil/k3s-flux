@@ -28,7 +28,7 @@ spec:
         LDAPAuthenticator:
           server_address: ldaps://diskstation.${topleveldomain:=undefined}
           server_port: 636
-          use_ssl: true
+          tls_strategy: "on_connect"
           lookup_dn: true
           lookup_dn_search_user: "uid=svc-jupyterhub,cn=users,${ldapclusterdomain:=undefined}"
           lookup_dn_search_filter: "({login_attr}={login})"
@@ -53,6 +53,9 @@ spec:
       service:
         type: ClusterIP
     singleuser:
+      networkPolicy:
+        egressAllowRules: 
+          privateIPs: true
       storage:
         dynamic:
           storageClass: local-path
@@ -88,10 +91,11 @@ spec:
                       pip install ansible
             extra_pod_config:
               serviceAccountName: jupyterhub-devops
+              automountServiceAccountToken: true
         - display_name: "PyTorch ROCm"
           description: "PyTorch with AMD GPU support"
           kubespawner_override:
-            image: rocm/pytorch:rocm7.0_ubuntu24.04_py3.12_pytorch_release_2.7.1
+            image: simonstiil/jupyter-pytorch-rocm-ubuntu:latest
             cpu_limit: 16
             cpu_guarantee: 1
             mem_limit: "24G"
@@ -108,6 +112,18 @@ spec:
             mem_guarantee: "2G"
             extra_resource_limits:
               amd.com/gpu: "1"
+            volumes:
+            - name: dev-dri
+              hostPath:
+                path: /dev/dri
+            - name: dev-kfd
+              hostPath:
+                path: /dev/kfd
+            volume_mounts:
+              - name: dev-dri
+                mountPath: /dev/dri
+              - name: dev-kfd
+                mountPath: /dev/kfd
         - display_name: "JAX ROCm"
           description: "JAX with AMD GPU support"
           kubespawner_override:
@@ -129,3 +145,5 @@ spec:
       annotations: 
         traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
         traefik.ingress.kubernetes.io/router.tls: "true"
+    debug:
+      enabled: true
