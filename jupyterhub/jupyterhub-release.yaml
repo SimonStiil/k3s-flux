@@ -28,7 +28,7 @@ spec:
         LDAPAuthenticator:
           server_address: ldaps://diskstation.${topleveldomain:=undefined}
           server_port: 636
-          use_ssl: true
+          tls_strategy: "on_connect"
           lookup_dn: true
           lookup_dn_search_user: "uid=svc-jupyterhub,cn=users,${ldapclusterdomain:=undefined}"
           lookup_dn_search_filter: "({login_attr}={login})"
@@ -53,9 +53,35 @@ spec:
       service:
         type: ClusterIP
     singleuser:
+      networkPolicy:
+        egressAllowRules: 
+          privateIPs: true
       storage:
         dynamic:
           storageClass: local-path
+        extraVolumes:
+          1-shm-volume:
+            name: shm-volume
+            emptyDir:
+              medium: Memory
+          2-dev-dri: 
+            name: dev-dri
+            hostPath:
+              path: /dev/dri
+          3-dev-kfd: 
+            name: dev-kfd
+            hostPath:
+              path: /dev/kfd
+        extraVolumeMounts:
+          1-shm-volume:
+            name: shm-volume
+            mountPath: /dev/shm
+          2-dev-dri:
+            name: dev-dri
+            mountPath: /dev/dri
+          3-dev-kfd:
+            name: dev-kfd
+            mountPath: /dev/kfd
       profileList:
         - display_name: "DevOps Tools"
           description: "Kubernetes tools (kubectl, helm, kustomize) and Ansible"
@@ -88,36 +114,51 @@ spec:
                       pip install ansible
             extra_pod_config:
               serviceAccountName: jupyterhub-devops
+              automountServiceAccountToken: true
         - display_name: "PyTorch ROCm"
           description: "PyTorch with AMD GPU support"
           kubespawner_override:
-            image: rocm/pytorch:rocm7.0_ubuntu24.04_py3.12_pytorch_release_2.7.1
+            image: simonstiil/jupyter-pytorch-rocm-ubuntu:latest
+            args:
+            - --allow-root
             cpu_limit: 16
             cpu_guarantee: 1
             mem_limit: "24G"
             mem_guarantee: "2G"
-            extra_resource_limits:
-              amd.com/gpu: "1"
-        - display_name: "TensorFlow ROCm"
-          description: "TensorFlow with AMD GPU support"
-          kubespawner_override:
-            image: rocm/tensorflow:rocm7.0-py3.12-tf2.19-dev
-            cpu_limit: 16
-            cpu_guarantee: 1
-            mem_limit: "24G"
-            mem_guarantee: "2G"
-            extra_resource_limits:
-              amd.com/gpu: "1"
-        - display_name: "JAX ROCm"
-          description: "JAX with AMD GPU support"
-          kubespawner_override:
-            image: rocm/jax:rocm7.0-jax0.6.0-py3.12
-            cpu_limit: 16
-            cpu_guarantee: 1
-            mem_limit: "24G"
-            mem_guarantee: "2G"
-            extra_resource_limits:
-              amd.com/gpu: "1"
+#            extra_resource_limits:
+#              amd.com/gpu: "1"
+            extra_annotations: 
+              container.apparmor.security.beta.kubernetes.io/notebook: "unconfined"
+            extra_pod_config:
+              securityContext:
+                capabilities:
+                  add:
+                    - SYS_PTRACE
+                    - SYS_RAWIO
+            extra_container_config:
+              securityContext:
+                privileged: true
+            
+       # - display_name: "TensorFlow ROCm"
+         # description: "TensorFlow with AMD GPU support"
+         # kubespawner_override:
+           # image: rocm/tensorflow:rocm7.0-py3.12-tf2.19-dev
+           # cpu_limit: 16
+           # cpu_guarantee: 1
+           # mem_limit: "24G"
+           # mem_guarantee: "2G"
+            # extra_resource_limits:
+              # amd.com/gpu: "1"
+        # - display_name: "JAX ROCm"
+          # description: "JAX with AMD GPU support"
+          # kubespawner_override:
+            # image: rocm/jax:rocm7.0-jax0.6.0-py3.12
+            # cpu_limit: 16
+            # cpu_guarantee: 1
+            # mem_limit: "24G"
+            # mem_guarantee: "2G"
+            # extra_resource_limits:
+              # amd.com/gpu: "1"
     scheduling:
       userScheduler:
         replicas: 1
@@ -129,3 +170,5 @@ spec:
       annotations: 
         traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
         traefik.ingress.kubernetes.io/router.tls: "true"
+    debug:
+      enabled: false

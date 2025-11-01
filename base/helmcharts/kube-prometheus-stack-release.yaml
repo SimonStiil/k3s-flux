@@ -240,10 +240,19 @@ spec:
       fullnameOverride: node-exporter
       podLabels:
         jobLabel: node-exporter
+      podAnnotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        container.apparmor.security.beta.kubernetes.io/node-exporter: "unconfined"
       extraArgs:
         - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
         - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
         - --collector.processes
+      containerSecurityContext:
+        readOnlyRootFilesystem: true
+          capabilities:
+            add:
+            - SYS_TIME
+            - SYS_PTRACE
       service:
         portName: http-metrics
       prometheus:
