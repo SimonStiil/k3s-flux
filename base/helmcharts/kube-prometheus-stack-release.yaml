@@ -249,10 +249,10 @@ spec:
         - --collector.processes
       containerSecurityContext:
         readOnlyRootFilesystem: true
-          capabilities:
-            add:
-            - SYS_TIME
-            - SYS_PTRACE
+        capabilities:
+          add:
+          - SYS_TIME
+          - SYS_PTRACE
       service:
         portName: http-metrics
       prometheus:
