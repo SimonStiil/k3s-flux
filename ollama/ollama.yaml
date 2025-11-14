@@ -21,8 +21,8 @@ spec:
   upgrade:
     crds: CreateReplace
   values:
-    knative:
-      enabled: true
+#    knative:
+#      enabled: true
     ollama:
       gpu:
         # -- Enable GPU integration
