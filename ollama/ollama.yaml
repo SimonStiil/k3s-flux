@@ -24,7 +24,7 @@ spec:
     ollama:
       gpu:
         # -- Enable GPU integration
-        enabled: true
+        enabled: false
         # -- GPU type: 'nvidia' or 'amd'
         type: 'amd'
     
@@ -34,3 +34,19 @@ spec:
       enabled: true
       size: 200Gi
       storageClass: local-path
+    volumes:
+      - name: dev-dri
+        hostPath:
+          path: /dev/dri
+      - name: dev-kfd
+        hostPath:
+          path: /dev/kfd
+    volumeMounts:
+      - name: dev-dri
+        mountPath: /dev/dri
+      - name: dev-kfd
+        mountPath: /dev/kfd
+    podSecurityContext:
+      supplementalGroups: [27, 44, 993] #sudo, video, render groups
+    podAnnotations:
+      container.apparmor.security.beta.kubernetes.io/ollama: "unconfined"

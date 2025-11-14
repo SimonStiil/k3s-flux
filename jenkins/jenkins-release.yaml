@@ -52,7 +52,7 @@ spec:
                 configs:
                 - credentialsId: "github-token-secret"
                   name: "SimonStiil Org"
-                hookUrl: "https://jenkins.${clusterdomain:=undefined}/github-webhook/"
+                hookUrl: "https://jenkins.${topleveldomain:=undefined}/github-webhook/"
               scmGit:
                 globalConfigEmail: "${githubemail:=undefined}"
                 globalConfigName: "SimonStiil"
@@ -131,12 +131,16 @@ spec:
         annotations:
           traefik.ingress.kubernetes.io/router.tls: "true"
           traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+        labels:
+          external-dns-export: "true"
+          tooc.k8s.stiil.dk/export: "true"
+          tooc.k8s.stiil.dk/ssl-type: reencrypt
         apiVersion: networking.k8s.io/v1
         enabled: true
-        hostName: jenkins.${clusterdomain:=undefined}
+        hostName: jenkins.${topleveldomain:=undefined}
         ingressClassName: traefik
       jenkinsAdminEmail: robot@${topleveldomain:=undefined}
-      jenkinsUrl: https://jenkins.${clusterdomain:=undefined}
+      jenkinsUrl: https://jenkins.${topleveldomain:=undefined}
       resources:
         limits:
           memory: 8192Mi
