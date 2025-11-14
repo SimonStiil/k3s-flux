@@ -15,6 +15,7 @@ resources:
 - ollama.yaml
 - flux-system-additions.yaml
 - jupyterhub.yaml
+- knative.yaml
 
 #- reloader.yaml
 #- rke-patches.yaml

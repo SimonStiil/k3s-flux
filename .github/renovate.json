@@ -26,7 +26,8 @@
         "\\.yaml$"
       ],
       "matchStrings": [
-        "- https://raw.githubusercontent.com/(?<depName>[\\w\\-\\_]+/[\\w\\-\\_]+?)/(?<currentValue>[\\w\\-\\_\\,\\.]+?)/"
+        "- https://raw.githubusercontent.com/(?<depName>[\\w\\-\\_]+/[\\w\\-\\_]+?)/(?<currentValue>[\\w\\-\\_\\,\\.]+?)/",
+        "- https://github.com/(?<depName>[\\w\\-\\_]+/[\\w\\-\\_]+?)/releases/download/(?<currentValue>[\\w\\-\\_\\,\\.]+?)/"
       ],
       "datasourceTemplate": "github-releases"
     }
