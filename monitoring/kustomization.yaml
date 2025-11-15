@@ -4,11 +4,8 @@ resources:
 - namespace.yaml
 - grafana-admin-credentials-external.yaml
 - grafana-ldap-credentials-external.yaml
-# - kube-prometheus-stack-release.yaml
-# - prometheus-ingress.yaml
-# - grafana-ingress.yaml
+# - device-metrics-exporter.yaml disable untill 1.4.1
 - loki-release.yaml
 - promtail-release.yaml
 - kubernetes-event-exporter.yaml
 - flux-monitor.yaml
-# - kube-prometheus-stack-values-configmap.yaml
