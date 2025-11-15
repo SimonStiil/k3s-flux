@@ -23,6 +23,8 @@ spec:
   values:
 #    knative:
 #      enabled: true
+    image:
+      tag: 0.12.5-rocm
     ollama:
       gpu:
         # -- Enable GPU integration
@@ -50,5 +52,7 @@ spec:
         mountPath: /dev/kfd
     podSecurityContext:
       supplementalGroups: [27, 44, 993] #sudo, video, render groups
+    securityContext:
+      privileged: true
     podAnnotations:
       container.apparmor.security.beta.kubernetes.io/ollama: "unconfined"
