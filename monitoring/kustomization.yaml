@@ -4,7 +4,8 @@ resources:
 - namespace.yaml
 - grafana-admin-credentials-external.yaml
 - grafana-ldap-credentials-external.yaml
-# - device-metrics-exporter.yaml disable untill 1.4.1
+- grafana-generic-oauth-external.yaml
+# - device-metrics-exporter.yaml disable untill 1.4.1 https://github.com/ROCm/device-metrics-exporter/tags
 - loki-release.yaml
 - promtail-release.yaml
 - kubernetes-event-exporter.yaml
