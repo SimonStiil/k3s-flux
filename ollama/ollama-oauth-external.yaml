@@ -1,0 +1,25 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: openwebui-oauth
+  namespace: ollama
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: webhook-backend
+    kind: ClusterSecretStore
+  target:
+    name: openwebui-oauth
+    template:
+      data:
+        clientId: "{{ .clientId | toString }}"
+        clientSecret: "{{ .clientSecret | toString }}"
+  data:
+  - secretKey: clientId
+    remoteRef:
+      key: openwebui-clientid
+      property: authentik
+  - secretKey: clientSecret
+    remoteRef:
+      key: openwebui-client-secret
+      property: authentik

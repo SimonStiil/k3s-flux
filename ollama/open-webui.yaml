@@ -64,6 +64,9 @@ spec:
           value: "True"
         - name: OLLAMA_BASE_URL
           value: "http://ollama-ollama:11434"
+        - name: WEBUI_URL
+          value: "https://chat.${topleveldomain:=undefined}"
+          
         ports:
         - containerPort: 8080
           name: web-ui
@@ -110,10 +113,14 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+  labels:
+    external-dns-export: "true"
+    tooc.k8s.stiil.dk/export: "true"
+    tooc.k8s.stiil.dk/ssl-type: reencrypt
 spec:
   ingressClassName: traefik
   rules:
-  - host: ollama.${clusterdomain:=undefined}
+  - host: chat.${topleveldomain:=undefined}
     http:
       paths:
       - backend:

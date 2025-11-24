@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - ollama.yaml
 - open-webui.yaml
+- ollama-oauth-external.yaml
