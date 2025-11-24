@@ -56,3 +56,30 @@ spec:
       privileged: true
     podAnnotations:
       container.apparmor.security.beta.kubernetes.io/ollama: "unconfined"
+
+    # Configure the ingress resource that allows you to access the
+    ingress:
+      # -- Enable ingress controller resource
+      enabled: true
+
+      # -- IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
+      className: "traefik"
+
+      # -- Additional annotations for the Ingress resource.
+      annotations: 
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        cert-manager.io/cluster-issuer: stiil-issuer
+
+      # The list of hostnames to be covered with this ingress record.
+      hosts:
+        - host: ollama.k3s.${homedomain:=undefined}
+          paths:
+            - path: /
+              pathType: Prefix
+      # --  The tls configuration for hostnames to be covered with this ingress record.
+      tls: 
+        - hosts:
+          - ollama.k3s.${homedomain:=undefined}
+          secretName: ollama-home-cert
+    
