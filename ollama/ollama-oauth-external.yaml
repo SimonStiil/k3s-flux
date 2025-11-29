@@ -12,8 +12,8 @@ spec:
     name: openwebui-oauth
     template:
       data:
-        clientId: "{{ .clientId | toString }}"
-        clientSecret: "{{ .clientSecret | toString }}"
+        OAUTH_CLIENT_ID: "{{ .clientId | toString }}"
+        OAUTH_CLIENT_SECRET: "{{ .clientSecret | toString }}"
   data:
   - secretKey: clientId
     remoteRef:

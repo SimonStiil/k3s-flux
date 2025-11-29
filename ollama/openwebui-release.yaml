@@ -1,0 +1,138 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: open-webui
+  namespace: flux-system
+spec:
+  chart:
+    spec:
+      chart: open-webui
+      version: "8.18.0"
+      sourceRef:
+        kind: HelmRepository
+        name: open-webui 
+        namespace: flux-system
+  interval: 15m0s
+  targetNamespace: ollama
+  values:
+    ollama:
+      enabled: true
+      image:
+        tag: 0.12.5-rocm
+      ollama:
+        gpu:
+          # -- Enable GPU integration
+          enabled: false
+          # -- GPU type: 'nvidia' or 'amd'
+          type: 'amd'
+      
+          # -- Specify the number of GPU to 1
+          number: 1
+      persistentVolume:
+        enabled: true
+        size: 200Gi
+        storageClass: local-path
+      volumes:
+        - name: dev-dri
+          hostPath:
+            path: /dev/dri
+        - name: dev-kfd
+          hostPath:
+            path: /dev/kfd
+      volumeMounts:
+        - name: dev-dri
+          mountPath: /dev/dri
+        - name: dev-kfd
+          mountPath: /dev/kfd
+      podSecurityContext:
+        supplementalGroups: [27, 44, 993] #sudo, video, render groups
+      securityContext:
+        privileged: true
+      podAnnotations:
+        container.apparmor.security.beta.kubernetes.io/ollama: "unconfined"
+
+      # Configure the ingress resource that allows you to access the
+      ingress:
+        # -- Enable ingress controller resource
+        enabled: true
+
+        # -- IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
+        className: "traefik"
+
+        # -- Additional annotations for the Ingress resource.
+        annotations: 
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+          traefik.ingress.kubernetes.io/router.tls: "true"
+          cert-manager.io/cluster-issuer: stiil-issuer
+
+        # The list of hostnames to be covered with this ingress record.
+        hosts:
+          - host: ollama.k3s.${homedomain:=undefined}
+            paths:
+              - path: /
+                pathType: Prefix
+        # --  The tls configuration for hostnames to be covered with this ingress record.
+        tls: 
+          - hosts:
+            - ollama.k3s.${homedomain:=undefined}
+            secretName: ollama-home-cert
+          
+    tika:
+      # -- Automatically install Apache Tika to extend Open WebUI
+      # @section -- External Tools configuration
+      enabled: true
+    websocket:
+      # -- Enables websocket support in Open WebUI with env `ENABLE_WEBSOCKET_SUPPORT`
+      # @section -- Websocket configuration
+      enabled: true
+
+    ingress:
+      enabled: true
+      class: traefik
+
+      annotations:
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+      host: "chat.${topleveldomain:=undefined}"
+      additionalHosts: []
+      extraLabels: 
+        external-dns-export: "true"
+        tooc.k8s.stiil.dk/export: "true"
+        tooc.k8s.stiil.dk/ssl-type: reencrypt
+     
+    persistence:
+      storageClass: local-path
+    enableOpenaiApi: false
+    extraEnvVars:
+      - name: STORAGE_PROVIDER
+        value: "s3"
+      - name: S3_ENDPOINT_URL
+        value: "https://s3.${topleveldomain:=undefined}"
+      - name: S3_REGION_NAME
+        value: "us-east-1"
+      - name: OAUTH_PROVIDER_NAME
+        value: "authentik"
+      - name: OPENID_PROVIDER_URL
+        value: "https://authentik.${topleveldomain:=undefined}/application/o/openwebui/.well-known/openid-configuration"
+      - name: OPENID_REDIRECT_URI
+        value: "https://chat.${topleveldomain:=undefined}/oauth/oidc/callback"
+      - name: ENABLE_OAUTH_SIGNUP
+        value: "false"
+      - name: ENABLE_LOGIN_FORM
+        value: "true"
+      - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+        value: "true"
+        # S3_ADDRESSING_STYLE should default to path
+      - name: ENABLE_WEB_SEARCH
+        value: "true"
+      - name: WEB_SEARCH_ENGINE
+        value: "searxng"
+      - name: SEARXNG_QUERY_URL
+        value: "http://search.${topleveldomain:=undefined}/search?q=<query>"
+    extraEnvFrom: 
+    - secretRef:
+        name: openwebui-objectstorage
+    - secretRef:
+        name: openwebui-oauth
+    

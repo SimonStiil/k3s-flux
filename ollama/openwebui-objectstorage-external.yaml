@@ -1,0 +1,30 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: openwebui-objectstorage
+  namespace: ollama
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: webhook-backend
+    kind: ClusterSecretStore
+  target:
+    name: openwebui-objectstorage
+    template:
+      data:
+        AWS_BUCKET_NAME: "{{ .bucketName | toString }}"
+        AWS_ACCESS_KEY_ID: "{{ .accessKeyID | toString }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .secretAccessKey | toString }}"
+  data:
+  - secretKey: accessKeyID
+    remoteRef:
+      key: obc-flux-open-webui-key-id
+      property: tpi-push
+  - secretKey: secretAccessKey
+    remoteRef:
+      key: obc-flux-open-webui-access-key
+      property: tpi-push
+  - secretKey: bucketName
+    remoteRef:
+      key: obc-flux-open-webui-name
+      property: turingpi

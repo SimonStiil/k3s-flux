@@ -124,3 +124,12 @@ metadata:
 spec:
   interval: 1h
   url: https://cloudnative-pg.github.io/charts
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: open-webui
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://helm.openwebui.com
