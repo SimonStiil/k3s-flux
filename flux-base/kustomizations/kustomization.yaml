@@ -15,18 +15,6 @@ resources:
 - ollama.yaml
 - flux-system-additions.yaml
 - jupyterhub.yaml
+- searxng.yaml
 # - knative.yaml
-
-#- reloader.yaml
-#- rke-patches.yaml
-#- cilium-bgp.yaml
-#- rook-ceph.yaml
-#- test.yaml
-#- vcluster.yaml
-#- cloudnative-pg.yaml
-#- flux-system-additions.yaml
-#- kube-auth-proxy.yaml
-#- trivy-operator.yaml
-#- immich.yaml
-#- mysql-operator.yaml
-#- linkding.yaml
+# - immich.yaml

@@ -19,12 +19,12 @@ spec:
   - secretKey: accessKeyID
     remoteRef:
       key: obc-flux-open-webui-key-id
-      property: tpi-push
+      property: k3s
   - secretKey: secretAccessKey
     remoteRef:
-      key: obc-flux-open-webui-access-key
-      property: tpi-push
+      key: obc-flux-open-webui-secret-key
+      property: k3s
   - secretKey: bucketName
     remoteRef:
       key: obc-flux-open-webui-name
-      property: turingpi
+      property: k3s
