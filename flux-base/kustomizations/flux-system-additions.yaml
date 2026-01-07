@@ -2,12 +2,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: flux-system-additions-jupyterhub
+  name: flux-system-additions-external-secrets
   namespace: flux-system
 spec:
   interval: 10m0s
   timeout: 5m
-  path: ./flux-system-additions/jupyterhub
+  path: ./flux-system-additions/external-secrets
   prune: true
   dependsOn:
     - name: base

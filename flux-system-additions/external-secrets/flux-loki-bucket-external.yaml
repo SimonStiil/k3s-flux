@@ -1,0 +1,30 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: flux-loki-bucket
+  namespace: flux-system
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: webhook-backend
+    kind: ClusterSecretStore
+  target:
+    name: flux-loki-bucket
+    template:
+      data:
+        AWS_BUCKET_NAME: "{{ .bucketName | toString }}"
+        AWS_ACCESS_KEY_ID: "{{ .accessKeyID | toString }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .secretAccessKey | toString }}"
+  data:
+  - secretKey: accessKeyID
+    remoteRef:
+      key: obc-flux-loki-key-id
+      property: k3s
+  - secretKey: secretAccessKey
+    remoteRef:
+      key: obc-flux-loki-secret-key
+      property: k3s
+  - secretKey: bucketName
+    remoteRef:
+      key: obc-flux-loki-name
+      property: k3s

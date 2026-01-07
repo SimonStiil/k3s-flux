@@ -14,11 +14,15 @@ spec:
     name: flux-system
   dependsOn:
     - name: external-secrets
+    - name: flux-system-additions-external-secrets
   postBuild:
     substitute:
       var_substitution_enabled: "true"
     substituteFrom:
       - kind: Secret
         name: clusterconfig
+        optional: false
+      - kind: Secret
+        name: flux-loki-bucket
         optional: false
 ---
