@@ -8,3 +8,4 @@ resources:
 - kube-prometheus-stack-values-configmap.yaml
 - kube-prometheus-stack-release.yaml
 - cloudnative-pg-release.yaml
+- prometheus-blackbox-exporter-release.yaml
