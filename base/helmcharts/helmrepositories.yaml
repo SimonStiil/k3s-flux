@@ -162,7 +162,7 @@ spec:
   url: oci://ghcr.io/prometheus-community/charts
   type: oci
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: nextcloud
