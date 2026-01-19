@@ -5,3 +5,4 @@ resources:
 - nextcloud-credentials-external.yaml
 - nextcloud-release.yaml
 - pgcluster.yaml
+- valkey-release.yaml

@@ -30,8 +30,14 @@ spec:
     ingress:
       enabled: true
       className: traefik
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+        traefik.ingress.kubernetes.io/router.tls: "true"  
       hosts:
         - host: cloud.${topleveldomain}
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
     
     nextcloud:
       host: cloud.${topleveldomain}
@@ -55,8 +61,16 @@ spec:
         usernameKey: username
         passwordKey: password
     
-    redis:
+    externalRedis:
       enabled: true
+      host: "nextcloud-valkey-nextcloud"
+      port: "6379"
+      existingSecret:
+        enabled: true
+        secretName: valkey
+        passwordKey: default
+    redis:
+      enabled: false
       auth:
         enabled: true
         password: your-redis-password
@@ -67,6 +81,25 @@ spec:
       architecture: standalone
     cronjob:
       enabled: true
+      
+    collabora:
+      enabled: true
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-admin
+        usernameKey: username
+        passwordKey: password
+      ingress:
+        enabled: true
+        className: traefik
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+          traefik.ingress.kubernetes.io/router.tls: "true"    
+        hosts:
+          - host: collabora.${topleveldomain}
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
     
     persistence:
       enabled: true

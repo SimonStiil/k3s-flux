@@ -20,7 +20,7 @@ spec:
       data:
         SEARXNG_BASE_URL: "https://search.${topleveldomain:=undefined}"
         SEARXNG_SECRET: "{{ .searxngSecret | toString }}"
-        SEARXNG_VALKEY_URL: "valkey://user:{{ .searxngValkeyPassword | toString }}@localhost:6379/0"
+        SEARXNG_VALKEY_URL: "valkey://searxng:{{ .searxngValkeyPassword | toString }}@searxng-valkey:6379/0"
   data:
   - secretKey: searxngSecret
     remoteRef:
