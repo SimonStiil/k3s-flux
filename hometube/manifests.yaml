@@ -1,0 +1,98 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hometube
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hometube-data
+  namespace: hometube
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs-csi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hometube-config
+  namespace: hometube
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hometube
+  namespace: hometube
+spec:
+  selector:
+    matchLabels:
+      app: hometube
+  template:
+    metadata:
+      labels:
+        app: hometube
+    spec:
+      containers:
+      - name: hometube
+        image: ghcr.io/egalitarianmonkey/hometube:2.3.1
+        ports:
+        - containerPort: 8501
+        env:
+        - name: TZ
+          value: Europe/Copenhagen
+        volumeMounts:
+        - name: data
+          mountPath: /data/videos
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: hometube-data
+      - name: config
+        persistentVolumeClaim:
+          claimName: hometube-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hometube
+  namespace: hometube
+spec:
+  selector:
+    app: hometube
+  ports:
+  - port: 8501
+    targetPort: 8501
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hometube
+  namespace: hometube
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  rules:
+  - host: download.${clusterdomain:=undefined}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hometube
+            port:
+              number: 8501

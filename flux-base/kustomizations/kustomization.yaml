@@ -17,5 +17,6 @@ resources:
 - jupyterhub.yaml
 - searxng.yaml
 - nextcloud.yaml
+- hometube.yaml
 # - knative.yaml
 # - immich.yaml
