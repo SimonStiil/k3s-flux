@@ -100,7 +100,12 @@ spec:
             paths:
               - path: /
                 pathType: ImplementationSpecific
-    
+    configs:
+      custom.config.php: |-
+        <?php
+        $CONFIG = array (
+          'allow_local_remote_servers' => true,
+        );
     persistence:
       enabled: true
       size: 100Gi
