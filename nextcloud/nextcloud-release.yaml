@@ -46,7 +46,49 @@ spec:
         secretName: nextcloud-admin
         usernameKey: username
         passwordKey: password
-    
+      configs:
+        custom.config.php: |-
+          <?php
+          $CONFIG = array (
+            'allow_local_remote_servers' => true,
+            'overwriteprotocol' => 'https'
+          );
+        oidc.config.php: |-
+          <?php
+          $CONFIG = array (
+            'allow_user_to_change_display_name' => false,
+            'lost_password_link' => 'disabled',
+            'oidc_login_provider_url' => 'https://auth.${topleveldomain:=undefined}',
+            'oidc_login_client_id' => 'nextcloud',
+            'oidc_login_client_secret' => '${nextcloudoidcclientsecret}',
+            'oidc_login_auto_redirect' => false,
+            'oidc_login_end_session_redirect' => false,
+            'oidc_login_button_text' => 'Log in with Authelia',
+            'oidc_login_hide_password_form' => false,
+            'oidc_login_use_id_token' => false,
+            'oidc_login_attributes' => array (
+                'id' => 'preferred_username',
+                'name' => 'name',
+                'mail' => 'email',
+                'groups' => 'groups',
+                'is_admin' => 'is_nextcloud_admin',
+            ),
+            'oidc_login_default_group' => 'oidc',
+            'oidc_login_use_external_storage' => false,
+            'oidc_login_scope' => 'openid profile email groups nextcloud_userinfo',
+            'oidc_login_proxy_ldap' => false,
+            'oidc_login_disable_registration' => false,
+            'oidc_login_redir_fallback' => false,
+            'oidc_login_tls_verify' => true,
+            'oidc_create_groups' => true,
+            'oidc_login_webdav_enabled' => false,
+            'oidc_login_password_authentication' => false,
+            'oidc_login_public_key_caching_time' => 86400,
+            'oidc_login_min_time_between_jwks_requests' => 10,
+            'oidc_login_well_known_caching_time' => 86400,
+            'oidc_login_update_avatar' => true,
+            'oidc_login_code_challenge_method' => 'S256'
+          );
     internalDatabase:
       enabled: false
     
@@ -100,12 +142,6 @@ spec:
             paths:
               - path: /
                 pathType: ImplementationSpecific
-    configs:
-      custom.config.php: |-
-        <?php
-        $CONFIG = array (
-          'allow_local_remote_servers' => true,
-        );
     persistence:
       enabled: true
       size: 100Gi
