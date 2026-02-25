@@ -95,7 +95,8 @@ spec:
           name: Authelia
           icon: signin
           scopes: "openid email profile groups"
-          use_refresh_token: true
+          empty_scopes: false
+#          use_refresh_token: true
           auth_url: "https://auth.${topleveldomain:=undefined}/api/oidc/authorization"
           token_url: "https://auth.${topleveldomain:=undefined}/api/oidc/token"
           api_url: "https://auth.${topleveldomain:=undefined}/api/oidc/userinfo"
@@ -106,7 +107,7 @@ spec:
           allow_assign_grafana_admin: true
           auto_login: true
           use_pkce: true
-          email_attribute_path: email
+#          email_attribute_path: email
           role_attribute_path: "contains(groups[*], 'administrators') && 'Admin' || contains(groups[*], 'developer') && 'Editor' || 'Viewer'"
       envFromSecret: grafana-generic-oauth-env
       ldap:
