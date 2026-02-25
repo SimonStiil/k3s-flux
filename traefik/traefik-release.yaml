@@ -42,19 +42,12 @@ spec:
               
     podSecurityContext:
       fsGroup: 65532
-    entryPoints:
-      metrics:
-        address: :8082
     metrics:
       prometheus:
         entryPoint: metrics
         addEntryPointsLabels: true
         addRoutersLabels: true
         addServicesLabels: true
-    additionalArguments:
-    - --entryPoints.web.forwardedHeaders.trustedIPs=127.0.0.1/32,10.42.0.1,192.168.10.15
-    - --entryPoints.websecure.forwardedHeaders.trustedIPs=127.0.0.1/32,10.42.0.1,192.168.10.15
-#    - --log.filePath=/logs/traefik.log
     experimental:
       kubernetesGateway:
         namespacePolicy: All
@@ -65,11 +58,27 @@ spec:
         enabled: true
     ports:
       web:
-        redirections:
-          entryPoint:
-            to: websecure
-            scheme: https
-            permanent: true
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
+        forwardedHeaders:
+          trustedIPs: 
+            - 127.0.0.1
+            - 10.42.0.1
+            - 192.168.10.15
+      websecure:
+        forwardedHeaders:
+          trustedIPs: 
+            - 127.0.0.1
+            - 10.42.0.1
+            - 192.168.10.15
+      metrics:
+        expose:
+          default: false
+        exposedPort: 8082
     service:
       spec:
         externalTrafficPolicy: Local
