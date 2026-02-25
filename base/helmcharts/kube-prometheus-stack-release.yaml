@@ -86,27 +86,27 @@ spec:
           allow_sign_up: true
           config_file: /etc/grafana/ldap.toml
         server:
-          root_url: https://grafana.${clusterdomain:=undefined}/
-#        auth: 
-#          oauth_auto_login: true
-#          oauth_allow_insecure_email_lookup: true
-#        auth.generic_oauth:
-#          enabled: true
-#          name: Authelia
-#          scopes: "openid email profile groups"
-#          use_refresh_token: true
-#          auth_url: "https://auth.${topleveldomain:=undefined}/api/oidc/authorization"
-#          token_url: "https://auth.${topleveldomain:=undefined}/api/oidc/token"
-#          api_url: "https://auth.${topleveldomain:=undefined}/api/oidc/userinfo"
-#          login_attribute_path: preferred_username
-#          allow_assign_grafana_admin: true
-#          auto_login: true
-#          use_pkce: true
-#          email_attribute_path: email
-#          role_attribute_path: "contains(groups[*], 'administrators') && 'Admin' || contains(groups[*], 'developer') && 'Editor' || 'Viewer'"
-#      envFromSecret: grafana-generic-oauth-env
+          root_url: https://grafana.${clusterdomain:=undefined}
+        auth: 
+          oauth_auto_login: true
+          oauth_allow_insecure_email_lookup: true
+        auth.generic_oauth:
+          enabled: true
+          name: Authelia
+          scopes: "openid email profile groups"
+          use_refresh_token: true
+          auth_url: "https://auth.${topleveldomain:=undefined}/api/oidc/authorization"
+          token_url: "https://auth.${topleveldomain:=undefined}/api/oidc/token"
+          api_url: "https://auth.${topleveldomain:=undefined}/api/oidc/userinfo"
+          login_attribute_path: preferred_username
+          allow_assign_grafana_admin: true
+          auto_login: true
+          use_pkce: true
+          email_attribute_path: email
+          role_attribute_path: "contains(groups[*], 'administrators') && 'Admin' || contains(groups[*], 'developer') && 'Editor' || 'Viewer'"
+      envFromSecret: grafana-generic-oauth-env
       ldap:
-        enabled: true
+        enabled: false
         existingSecret: grafana-ldap-credentials
       deploymentStrategy:
         type: Recreate
