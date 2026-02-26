@@ -190,7 +190,7 @@ spec:
     kubeControllerManager:
       enabled: true
       endpoints: # ips of servers 
-        - 192.168.10.110
+        - 192.168.10.143
       serviceMonitor:
         relabelings:
           - targetLabel: "cluster"
@@ -206,7 +206,7 @@ spec:
     kubeEtcd:
       enabled: true
       endpoints: # ips of servers
-        - 192.168.10.110
+        - 192.168.10.143
       service:
         enabled: true
         port: 2381
@@ -218,7 +218,7 @@ spec:
     kubeScheduler:
       enabled: true
       endpoints: # ips of servers
-        - 192.168.10.110
+        - 192.168.10.143
       serviceMonitor:
         relabelings:
           - targetLabel: "cluster"
@@ -226,7 +226,7 @@ spec:
     kubeProxy:
       enabled: true
       endpoints: # ips of servers
-        - 192.168.10.110
+        - 192.168.10.143
       serviceMonitor:
         relabelings:
           - targetLabel: "cluster"
@@ -320,6 +320,9 @@ spec:
               resources:
                 requests:
                   storage: 50Gi
+        scrapeConfigSelector:
+          matchLabels:
+            prometheus: autoScrape
       serviceMonitor:
         relabelings:
           - targetLabel: "cluster"
