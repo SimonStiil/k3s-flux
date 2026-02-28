@@ -18,8 +18,8 @@ spec:
   values:
     ollama:
       enabled: true
-      image:
-        tag: 0.12.5-rocm
+#      image:
+#        tag: 0.12.5-rocm
       ollama:
         gpu:
           # -- Enable GPU integration
