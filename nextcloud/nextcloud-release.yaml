@@ -22,8 +22,8 @@ spec:
     remediation:
       retries: 3
   values:
-    livenessProbe:
-      enabled: false
+    startupProbe:
+      initialDelaySeconds: 150
     image:
       flavor: apache #fpm-alpine
     

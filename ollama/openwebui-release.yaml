@@ -55,7 +55,7 @@ spec:
       # Configure the ingress resource that allows you to access the
       ingress:
         # -- Enable ingress controller resource
-        enabled: true
+        enabled: false
 
         # -- IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
         className: "traefik"

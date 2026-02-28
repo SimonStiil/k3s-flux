@@ -10,3 +10,4 @@ resources:
 - promtail-release.yaml
 - kubernetes-event-exporter.yaml
 - flux-monitor.yaml
+- scrape-configs.yaml

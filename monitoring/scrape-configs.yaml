@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: scraping
+  namespace: monitoring
+  labels:
+    prometheus: autoScrape
+spec:
+  staticConfigs:
+    - labels:
+        job: 'authelia'
+      targets:
+        - 192.168.10.15:9092
+    - labels:
+        job: 'environment'
+      targets:
+        - 192.168.10.135:80
+        - 192.168.10.217:80
+---
