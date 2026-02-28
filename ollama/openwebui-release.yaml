@@ -81,7 +81,7 @@ spec:
     tika:
       # -- Automatically install Apache Tika to extend Open WebUI
       # @section -- External Tools configuration
-      enabled: true
+      enabled: false
     websocket:
       # -- Enables websocket support in Open WebUI with env `ENABLE_WEBSOCKET_SUPPORT`
       # @section -- Websocket configuration
