@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
       - name: hometube
-        image: ghcr.io/egalitarianmonkey/hometube:v2.8.1
+        image: ghcr.io/egalitarianmonkey/hometube:2.9.0
         ports:
         - containerPort: 8501
         env:
