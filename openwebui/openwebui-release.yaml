@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: open-webui
+  name: open-webui-aio
   namespace: flux-system
 spec:
   chart:
@@ -14,7 +14,7 @@ spec:
         name: open-webui 
         namespace: flux-system
   interval: 15m0s
-  targetNamespace: ollama
+  targetNamespace: openwebui
   values:
     ollama:
       enabled: true
@@ -55,7 +55,7 @@ spec:
       # Configure the ingress resource that allows you to access the
       ingress:
         # -- Enable ingress controller resource
-        enabled: false
+        enabled: true
 
         # -- IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
         className: "traefik"
@@ -82,15 +82,9 @@ spec:
       # -- Automatically install Apache Tika to extend Open WebUI
       # @section -- External Tools configuration
       enabled: false
-    websocket:
-      # -- Enables websocket support in Open WebUI with env `ENABLE_WEBSOCKET_SUPPORT`
-      # @section -- Websocket configuration
-      enabled: true
-
     ingress:
       enabled: true
       class: traefik
-
       annotations:
         traefik.ingress.kubernetes.io/router.tls: "true"
         traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
@@ -102,47 +96,43 @@ spec:
         tooc.k8s.stiil.dk/ssl-type: reencrypt
      
     persistence:
-      storageClass: local-path
+      s3:
+        bucket: "open-webui"
+        region: "us-east-1"
+        accessKeyExistingSecret: "openwebui-creds"
+        accessKeyExistingAccessKey: "access-key"
+        secretKeyExistingSecret: "openwebui-creds"
+        secretKeyExistingSecretKey: "secret-key"
+        endpointUrl: "https://minio.${topleveldomain:=undefined}"
     enableOpenaiApi: false
+    sso:
+      enabled: true
+      enableSignup: true
+      mergeAccountsByEmail: true
+      enableRoleManagement: true
+      oidc:
+        enabled: true
+        clientId: "148d773e-677d-4b36-bf14-83bdadd0ba12"
+        clientExistingSecret: "openwebui-creds"
+        clientExistingSecretKey: "oauth-client-secret"
+        providerUrl: "https://auth.${topleveldomain:=undefined}/.well-known/openid-configuration"
+        providerName: "authelia"
+        scopes: "openid email profile groups"
+      roleManagement:
+        rolesClaim: "groups"
+        allowedRoles: "administrators,developer,users"
+        adminRoles: "administrators"
     extraEnvVars:
-      - name: STORAGE_PROVIDER
-        value: "s3"
-      - name: S3_ENDPOINT_URL
-        value: "https://minio.${topleveldomain:=undefined}"
-      - name: S3_REGION_NAME
-        value: "us-east-1"
-      - name: OAUTH_PROVIDER_NAME
-        value: "authentik"
-      - name: OPENID_PROVIDER_URL
-        value: "https://auth.${topleveldomain:=undefined}/.well-known/openid-configuration"
       - name: OPENID_REDIRECT_URI
         value: "https://chat.${topleveldomain:=undefined}/oauth/oidc/callback"
-      - name: ENABLE_OAUTH_SIGNUP
-        value: "false"
-      - name: OAUTH_SCOPES
-        value: "openid email profile groups"
-      - name: OAUTH_ALLOWED_ROLES
-        value: "administrators,developer,users"
-      - name: OAUTH_ADMIN_ROLES
-        value: "administrators"
-      - name: OAUTH_ROLES_CLAIM
-        value: "groups"
       - name: OAUTH_CODE_CHALLENGE_METHOD
         value: "S256"
       - name: ENABLE_LOGIN_FORM
         value: "true"
-      - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
-        value: "true"
-        # S3_ADDRESSING_STYLE should default to path
       - name: ENABLE_WEB_SEARCH
         value: "true"
       - name: WEB_SEARCH_ENGINE
         value: "searxng"
       - name: SEARXNG_QUERY_URL
         value: "http://search.${topleveldomain:=undefined}/search?q=<query>"
-    extraEnvFrom: 
-    - secretRef:
-        name: openwebui-objectstorage
-    - secretRef:
-        name: openwebui-oauth
     

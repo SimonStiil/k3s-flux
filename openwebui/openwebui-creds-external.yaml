@@ -1,20 +1,20 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: openwebui-objectstorage
-  namespace: ollama
+  name: openwebui-creds
+  namespace: openwebui
 spec:
   refreshInterval: "1h"
   secretStoreRef:
     name: webhook-backend
     kind: ClusterSecretStore
   target:
-    name: openwebui-objectstorage
+    name: openwebui-creds
     template:
       data:
-        AWS_BUCKET_NAME: "{{ .bucketName | toString }}"
-        AWS_ACCESS_KEY_ID: "{{ .accessKeyID | toString }}"
-        AWS_SECRET_ACCESS_KEY: "{{ .secretAccessKey | toString }}"
+        access-key: "{{ .accessKeyID | toString }}"
+        secret-key: "{{ .secretAccessKey | toString }}"
+        oauth-client-secret: "{{ .clientSecret | toString }}"
   data:
   - secretKey: accessKeyID
     remoteRef:
@@ -24,7 +24,7 @@ spec:
     remoteRef:
       key: obc-flux-open-webui-secret-key
       property: k3s
-  - secretKey: bucketName
+  - secretKey: clientSecret
     remoteRef:
-      key: obc-flux-open-webui-name
-      property: k3s
+      key: openwebui-client-secret
+      property: authentik

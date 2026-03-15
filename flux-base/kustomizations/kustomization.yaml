@@ -12,7 +12,7 @@ resources:
 - jenkins.yaml
 - monitoring.yaml
 - rocm.yaml
-- ollama.yaml
+- openwebui.yaml
 - flux-system-additions.yaml
 - jupyterhub.yaml
 - searxng.yaml
