@@ -16,7 +16,7 @@ resources:
 - flux-system-additions.yaml
 - jupyterhub.yaml
 - searxng.yaml
-- nextcloud.yaml
+#- nextcloud.yaml
 - hometube.yaml
 # - knative.yaml
 # - immich.yaml
