@@ -56,26 +56,51 @@ spec:
               scmGit:
                 globalConfigEmail: "${githubemail:=undefined}"
                 globalConfigName: "SimonStiil"
-          ldap-settings: |-
+#          ldap-settings: |-
+#            jenkins:
+#              securityRealm:
+#                ldap:
+#                  configurations:
+#                  - groupMembershipStrategy:
+#                      fromUserRecord:
+#                        attributeName: "memberOf"
+#                    groupSearchBase: "cn=groups"
+#                    groupSearchFilter: "(& (cn={0}) (objectClass=posixGroup))"
+#                    inhibitInferRootDN: false
+#                    managerDN: "uid=svc-jenkins,cn=users,${ldapclusterdomain:=undefined}"
+#                    managerPasswordSecret: $${ldap-secret-password}
+#                    rootDN: "${ldapclusterdomain:=undefined}"
+#                    server: "ldaps://diskstation.${topleveldomain:=undefined}"
+#                    userSearchBase: "cn=users"
+#                  disableMailAddressResolver: false
+#                  disableRolePrefixing: true
+#                  groupIdStrategy: "caseInsensitive"
+#                  userIdStrategy: "caseInsensitive"
+          oidc-settings: |-
             jenkins:
               securityRealm:
-                ldap:
-                  configurations:
-                  - groupMembershipStrategy:
-                      fromUserRecord:
-                        attributeName: "memberOf"
-                    groupSearchBase: "cn=groups"
-                    groupSearchFilter: "(& (cn={0}) (objectClass=posixGroup))"
-                    inhibitInferRootDN: false
-                    managerDN: "uid=svc-jenkins,cn=users,${ldapclusterdomain:=undefined}"
-                    managerPasswordSecret: $${ldap-secret-password}
-                    rootDN: "${ldapclusterdomain:=undefined}"
-                    server: "ldaps://diskstation.${topleveldomain:=undefined}"
-                    userSearchBase: "cn=users"
-                  disableMailAddressResolver: false
-                  disableRolePrefixing: true
-                  groupIdStrategy: "caseInsensitive"
-                  userIdStrategy: "caseInsensitive"
+                oic:
+                  clientId: "jenkins"
+                  clientSecret: $${oidc-secret-secret}
+                  disableSslVerification: false
+                  emailFieldName: "email"
+                  fullNameFieldName: "name"
+                  groupIdStrategy: "caseSensitive"
+                  groupsFieldName: "groups"
+                  logoutFromOpenidProvider: false
+                  properties:
+                    - "pkce"
+                    - escapeHatch:
+                        group: "admin-users"
+                        secret: "escapeHatch"
+                        username: "escapeHatch"
+                  sendScopesInTokenRequest: true
+                  serverConfiguration:
+                    wellKnown:
+                      scopesOverride: "openid profile email groups"
+                      wellKnownOpenIDConfigurationUrl: "https://auth.${topleveldomain:=undefined}/.well-known/openid-configuration"
+                  userIdStrategy: "caseSensitive"
+                  userNameField: "preferred_username"
           pipeline-library: |-
             unclassified:
               globalLibraries:
@@ -105,8 +130,10 @@ spec:
               prometheusConfiguration:
                 collectDiskUsage: false
       additionalExistingSecrets:
-      - keyName: password
-        name: ldap-secret
+#      - keyName: password
+#        name: ldap-secret
+      - keyName: secret
+        name: oidc-secret
       additionalPlugins:
       - ldap
       - http_request
@@ -114,6 +141,10 @@ spec:
       - pipeline-utility-steps
       - pipeline-stage-view
       - pipeline-github
+      - oic-auth                          # https://plugins.jenkins.io/oic-auth/ & https://www.authelia.com/integration/openid-connect/clients/jenkins/
+      - gitea                             # https://plugins.jenkins.io/gitea/
+      - gitea-checks                      # https://plugins.jenkins.io/gitea-checks/
+      - gitea-pat-kubernetes-credentials  # https://plugins.jenkins.io/gitea-pat-kubernetes-credentials/
       - github-api
       - github-branch-source
       - github-checks

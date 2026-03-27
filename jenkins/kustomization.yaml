@@ -10,6 +10,7 @@ resources:
 - github-token-secret-external.yaml
 - github-dockercred-external.yaml
 - ldap-secret-external.yaml
+- oidc-secret-external.yaml
 - jenkins-release.yaml
 - tester-role.yaml
 - stiil-ca.yaml
@@ -19,3 +20,4 @@ resources:
 - cache-pvc.yaml
 - buildkit-certificates.yaml
 - buildkit-daemon.yaml
+- gitea-pat-secret-external.yaml
