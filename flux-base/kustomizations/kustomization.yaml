@@ -20,3 +20,4 @@ resources:
 - hometube.yaml
 # - knative.yaml
 # - immich.yaml
+- kubevirt.yaml
