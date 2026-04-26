@@ -10,3 +10,4 @@ resources:
 - cloudnative-pg-release.yaml
 - prometheus-blackbox-exporter-release.yaml
 - kyverno-release.yaml
+- k3k-release.yaml
