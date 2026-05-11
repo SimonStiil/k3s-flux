@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: k3s-gitea-runner
+  namespace: gitea
+  labels:
+    app: gitea-runner
+spec:
+  serviceName: gitea-runner
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea-runner
+  template:
+    metadata:
+      labels:
+        app: gitea-runner
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: gitea-runner
+              topologyKey: kubernetes.io/hostname
+      volumes:
+        - name: docker-certs
+          emptyDir: {}
+        - name: docker-storage
+          emptyDir: {}
+      containers:
+        - name: runner
+          image: gitea/runner:0.6.1
+          command:
+            - sh
+            - -c
+            - |
+              while ! nc -z localhost 2376 </dev/null; do
+                echo 'waiting for docker daemon...'; sleep 5
+              done
+              /sbin/tini -- run.sh
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2376
+            - name: DOCKER_CERT_PATH
+              value: /certs/client
+            - name: DOCKER_TLS_VERIFY
+              value: "1"
+            - name: GITEA_INSTANCE_URL
+              value: "https://git.${topleveldomain}"
+            - name: GITEA_RUNNER_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-runner-secret
+                  key: token
+            - name: GITEA_RUNNER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: GITEA_RUNNER_CAPACITY
+              value: "20"
+          volumeMounts:
+            - name: docker-certs
+              mountPath: /certs
+            - name: runner-data
+              mountPath: /data
+        - name: daemon
+          image: docker:29.4.3-dind
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: /certs
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: docker-certs
+              mountPath: /certs
+            - name: docker-storage
+              mountPath: /var/lib/docker
+  volumeClaimTemplates:
+    - metadata:
+        name: runner-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

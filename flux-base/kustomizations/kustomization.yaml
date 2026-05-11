@@ -21,3 +21,4 @@ resources:
 # - knative.yaml
 # - immich.yaml
 - kubevirt.yaml
+- gitea.yaml
