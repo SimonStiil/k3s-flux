@@ -30,7 +30,7 @@ spec:
           emptyDir: {}
       containers:
         - name: runner
-          image: gitea/runner:0.6.1
+          image: gitea/runner:1.0.4
           command:
             - sh
             - -c
@@ -65,7 +65,7 @@ spec:
             - name: runner-data
               mountPath: /data
         - name: daemon
-          image: docker:29.4.3-dind
+          image: docker:29.5.0-dind
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs
