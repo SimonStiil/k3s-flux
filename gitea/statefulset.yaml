@@ -30,7 +30,7 @@ spec:
           emptyDir: {}
       containers:
         - name: runner
-          image: gitea/runner:1.0.6
+          image: gitea/runner:1.0.7
           command:
             - sh
             - -c
