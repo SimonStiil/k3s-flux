@@ -32,6 +32,10 @@ spec:
       extraEnv:
       - name: OLLAMA_CONTEXT_LENGTH
         value: "65536"
+      - name: HSA_ENABLE_SDMA
+        value: "0"
+      - name: OLLAMA_VULKAN
+        value: "1"
       persistentVolume:
         enabled: true
         size: 200Gi
