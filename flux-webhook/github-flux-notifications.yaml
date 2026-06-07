@@ -19,12 +19,8 @@ spec:
     name: github-status
   eventSources:
   - kind: Kustomization
-    name: cert-manager
-  - kind: Kustomization
-    name: csi-driver-nfs
-  - kind: Kustomization
-    name: external-secrets
-  - kind: Kustomization
-    name: flux-system
-  - kind: Kustomization
-    name: flux-webhook
+    name: "*"
+  - kind: HelmRelease
+    name: "*"
+  - kind: GitRepository
+    name: "*"
