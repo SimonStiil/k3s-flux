@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nextcloud
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ubuntu-vm-cloudinit
+  namespace: nextcloud
+stringData:
+  userdata: |
+    #cloud-config
+    users:
+      - name: ubuntu
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        ssh_authorized_keys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJgWqR24oohs6sHEt5dxi134BbnOnzPYhnynWoRq8BBp simon@Klodsen
+    write_files:
+      - path: /etc/systemd/resolved.conf.d/local.conf
+        content: |
+          [Resolve]
+          DNS=192.168.10.15
+          Domains=~.
+    runcmd:
+      - systemctl restart systemd-resolved
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+spec:
+  selector:
+    kubevirt.io/vm: nextcloud
+  ports:
+    - port: 22022
+      targetPort: 22
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud-web
+  namespace: nextcloud
+spec:
+  selector:
+    kubevirt.io/vm: nextcloud
+  ports:
+    - name: web
+      port: 80
+      targetPort: 80
+    - name: code
+      port: 9980
+      targetPort: 9980
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    external-dns-export: "true"
+    tooc.k8s.stiil.dk/export: "true"
+    tooc.k8s.stiil.dk/ssl-type: reencrypt
+  name: nextcloud
+  namespace: nextcloud
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: cloud.stiil.dk
+    http:
+      paths:
+      - backend:
+          service:
+            name: nextcloud-web
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: nextcloud
+    app: nextcloud
+  name: nextcloud
+  namespace: nextcloud
+spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: nextcloud-dv
+      spec:
+        pvc:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+        source:
+          http:
+            url: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: nextcloud
+        app: nextcloud
+    spec:
+      domain:
+        cpu:
+          cores: 8
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+            - name: cloudinit
+              disk:
+                bus: virtio
+        resources:
+          requests:
+            memory: 8Gi
+      volumes:
+        - dataVolume:
+            name: nextcloud-dv
+          name: rootdisk
+        - name: cloudinit
+          cloudInitNoCloud:
+            secretRef:
+              name: ubuntu-vm-cloudinit
